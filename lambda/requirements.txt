@@ -1,0 +1,5 @@
+requests==2.22.0
+
+# Unfortunately required since as at time of writing, AWS provide lamdbas with too-old version of boto3,
+# which doesn't support ecr.describe_image_scan_findings
+boto3==1.10.41
