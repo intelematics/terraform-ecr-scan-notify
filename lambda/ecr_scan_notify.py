@@ -8,14 +8,13 @@ import argparse
 MAX_FINDINGS_TO_REPORT = 10
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--slack-channel", default=os.getenv("SLACK_CHANNEL"))
-parser.add_argument("--slack-webhook-url", default=os.getenv("SLACK_WEBHOOK_URL"))
+parser.add_argument("--ssm-parameter-name-config", default=os.getenv("SSM_PARAMETER_NAME_CONFIG"))
 args = parser.parse_args()
 
 
-def send_slack_message(msg):
-    msg['channel'] = args.slack_channel
-    res = requests.post(args.slack_webhook_url, json.dumps(msg))
+def send_slack_message(msg, config):
+    msg['channel'] = config['slack_channel']
+    res = requests.post(config['slack_webhook_url'], json.dumps(msg))
     if 200 != res.status_code:
         raise Exception(res.content)
 
@@ -92,4 +91,8 @@ def lambda_handler(event, context):
             msg['attachments'] = [
                 {'text': 'No vulnerabilities found'}
             ]
-        send_slack_message(msg)
+
+        ssm_client = boto3.client('ssm')
+        config = json.loads(ssm_client.get_parameter(Name=args.ssm_parameter_name_config, WithDecryption=True)['Parameter']['Value'])
+
+        send_slack_message(msg, config)

@@ -1,6 +1,7 @@
 locals {
-  function_name                    = "ecr_scan_notify"
-  permissions_boundary_policy_name = "managed-permission-boundary"
+  function_name                     = "ecr_scan_notify"
+  permissions_boundary_policy_name  = "managed-permission-boundary"
+  ssm_parameter_name_config         = "ecr_scan_notify_config"
 }
 
 data "aws_caller_identity" "current" {}
@@ -33,10 +34,18 @@ module "ecr_scan_notify_lambda" {
   # Add environment variables.
   environment               = {
     variables               = {
-      SLACK_CHANNEL         = var.slack_channel
-      SLACK_WEBHOOK_URL     = var.slack_webhook_url
+      SSM_PARAMETER_NAME_CONFIG = local.ssm_parameter_name_config
     }
   }
+}
+
+resource "aws_ssm_parameter" "config" {
+  name  = local.ssm_parameter_name_config
+  type  = "SecureString"
+  value = jsonencode({
+    "slack_channel"     = "${var.slack_channel}",
+    "slack_webhook_url" = "${var.slack_webhook_url}",
+  })
 }
 
 resource "aws_sqs_queue" "dlq" {
@@ -60,5 +69,12 @@ data "aws_iam_policy_document" "lambda" {
       "sqs:SendMessage",
     ]
     resources = [aws_sqs_queue.dlq.arn]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "ssm:GetParameter",
+    ]
+    resources = [aws_ssm_parameter.config.arn]
   }
 }
