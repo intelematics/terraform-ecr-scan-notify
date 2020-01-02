@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_event_rule" "main" {
-  name                = "ecr-image-scan-notify"
+  name          = "ecr-image-scan-notify"
   event_pattern = <<PATTERN
 {
   "source": [

@@ -1,13 +1,13 @@
 locals {
-  function_name                     = "ecr_scan_notify"
-  permissions_boundary_policy_name  = "managed-permission-boundary"
-  ssm_parameter_name_config         = "ecr_scan_notify_config"
+  function_name                    = "ecr_scan_notify"
+  permissions_boundary_policy_name = "managed-permission-boundary"
+  ssm_parameter_name_config        = "ecr_scan_notify_config"
 }
 
 data "aws_caller_identity" "current" {}
 
 module "ecr_scan_notify_lambda" {
-  source        = "github.com/intelematics/terraform-aws-lambda"
+  source = "github.com/intelematics/terraform-aws-lambda"
 
   # Where the lambda code lives
   source_path = "${path.module}/lambda/"
@@ -32,16 +32,16 @@ module "ecr_scan_notify_lambda" {
   }
 
   # Add environment variables.
-  environment               = {
-    variables               = {
+  environment = {
+    variables = {
       SSM_PARAMETER_NAME_CONFIG = local.ssm_parameter_name_config
     }
   }
 }
 
 resource "aws_ssm_parameter" "config" {
-  name  = local.ssm_parameter_name_config
-  type  = "SecureString"
+  name = local.ssm_parameter_name_config
+  type = "SecureString"
   value = jsonencode({
     "slack_channel"     = "${var.slack_channel}",
     "slack_webhook_url" = "${var.slack_webhook_url}",
@@ -57,21 +57,21 @@ resource "aws_sqs_queue" "dlq" {
 # in order to ListRoles
 data "aws_iam_policy_document" "lambda" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "ecr:DescribeImageScanFindings",
     ]
     resources = ["*"]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "sqs:SendMessage",
     ]
     resources = [aws_sqs_queue.dlq.arn]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "ssm:GetParameter",
     ]
