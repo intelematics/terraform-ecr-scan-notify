@@ -2,6 +2,17 @@
 
 Terraform module to set up [ECR Image Scan Results](https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_DescribeImageScanFindings.html) notifications from CloudWatch, invoke a lambda which sends these to slack.
 
+# Usage
+
+```terraform
+module "ecr_scan_notify" {
+  source                              = "git@github.com:intelematics/terraform-ecr-scan-notify.git"
+  slack_webhook_url                   = var.slack_webhook_url
+  slack_channel                       = var.slack_channel
+  send_slack_message_if_no_findings   = true
+}
+```
+
 # Requires
 
 **Recent AWS Terraform Provider**
@@ -31,10 +42,11 @@ Request Configuration for your channel (requires an admin approval)
 From there you'll get the Webhook URL
 
 # Variables
-|Name
+|Name|Default
 |-|
 |slack_webhook_url
 |slack_channel
+|send_slack_message_if_no_findings|false
 
 # Notes
 
