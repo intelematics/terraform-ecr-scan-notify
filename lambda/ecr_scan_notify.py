@@ -88,7 +88,7 @@ def lambda_handler(event, context):
         }
 
         if not scan_results[image_key]['findings']:
-            if os.environ['NOTIFY_NO_VULNERABILITIES'].lower() != 'true':
+            if os.environ.get('NOTIFY_NO_VULNERABILITIES', 'false').lower() != 'true':
                 continue
             msg['attachments'] = [
                 {'text': 'No vulnerabilities found'}
