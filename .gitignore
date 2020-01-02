@@ -2,3 +2,5 @@
 terraform.tfstate.backup
 secret.auto.tfvars
 .venv
+
+.DS_Store

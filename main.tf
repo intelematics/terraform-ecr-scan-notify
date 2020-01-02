@@ -35,6 +35,7 @@ module "ecr_scan_notify_lambda" {
   environment = {
     variables = {
       SSM_PARAMETER_NAME_CONFIG = local.ssm_parameter_name_config
+      NOTIFY_NO_VULNERABILITIES = var.notify_no_vulnerabilities
     }
   }
 }
