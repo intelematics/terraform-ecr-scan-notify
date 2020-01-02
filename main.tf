@@ -32,9 +32,9 @@ module "ecr_scan_notify_lambda" {
   }
 
   # Add environment variables.
-  environment = {
-    variables = {
-      SSM_PARAMETER_NAME_CONFIG = local.ssm_parameter_name_config
+  environment                           = {
+    variables                           = {
+      SSM_PARAMETER_NAME_CONFIG         = local.ssm_parameter_name_config
     }
   }
 }
@@ -43,8 +43,9 @@ resource "aws_ssm_parameter" "config" {
   name = local.ssm_parameter_name_config
   type = "SecureString"
   value = jsonencode({
-    "slack_channel"     = "${var.slack_channel}",
-    "slack_webhook_url" = "${var.slack_webhook_url}",
+    "slack_channel"                     = "${var.slack_channel}",
+    "slack_webhook_url"                 = "${var.slack_webhook_url}",
+    "send_slack_message_if_no_findings" = "${var.send_slack_message_if_no_findings}",
   })
 }
 

@@ -87,12 +87,17 @@ def lambda_handler(event, context):
             ]
         }
 
-        if not scan_results[image_key]['findings']:
-            msg['attachments'] = [
-                {'text': 'No vulnerabilities found'}
-            ]
-
         ssm_client = boto3.client('ssm')
         config = json.loads(ssm_client.get_parameter(Name=args.ssm_parameter_name_config, WithDecryption=True)['Parameter']['Value'])
 
-        send_slack_message(msg, config)
+        if scan_results[image_key]['findings']:
+            # If we have findings, always send slack message
+            send_slack_message(msg, config)
+        elif config.get('send_slack_message_if_no_findings'):
+            # No findings - optionally send slack message
+            msg['attachments'] = [
+                {'text': 'No vulnerabilities found'}
+            ]
+            send_slack_message(msg, config)
+        else:
+            print('No findings from ECR scan, and not sending slack message')
